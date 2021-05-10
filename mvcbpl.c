@@ -88,13 +88,28 @@ void compile_function(int parametersCount, int functionIdentifier)
 
         // conditional
 
-        // function return
+        // function return ----------------------------------------------------
         r = sscanf(line, "return vi%d", &a);
         if (r == 1) {
-
+            unsigned int address = localVariables[a-1].vAddr;
+            printf("\n\t# return vi%d\n", a);
+            printf("\tmovl -%u(%%rbp), %%eax\n", address);
         }
-        r = scanf(line, "return pi%d", &a);
+        r = sscanf(line, "return pi%d", &a);
         if (r == 1) {
+            printf("\n\t# return pi%d\n", a);
+            if (a == 1)
+            {
+                printf("\tmovl %%edi, %%eax\n");
+            }
+            else if (a == 2)
+            {
+                printf("\tmovl %%esi, %%eax\n");
+            }
+            else // if (a == 3)
+            {
+                printf("\tmovl %%edx, %%eax\n");
+            }
 
         }
         r = sscanf(line, "return ci%d", &a);
