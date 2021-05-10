@@ -4,14 +4,14 @@ enddef
 return ci0
 end
 
-function f2 pi1
+function f2
 def
 enddef
-return ci0
+return ci10
 end
 
-function f3 pa1, pi2, pa3
+function f3
 def
 enddef
-return ci0
+return ci-100
 end

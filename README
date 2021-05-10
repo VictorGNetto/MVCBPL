@@ -1,0 +1,5 @@
+Um compilador para a linguagem BPL (Bruno's Programming Language)
+escrito usando a linguagem C.
+
+Para rodar (atualizar) os testes, execute o script em python usando o comando
+>>> python3 ./tests/compile.tests.py

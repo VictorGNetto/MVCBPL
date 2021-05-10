@@ -6,6 +6,9 @@ f1:
 	movq %rsp, %rbp
 
 
+	# return ci0
+	movl $0, %eax
+
 return_f1:
 	leave
 	ret
@@ -20,6 +23,9 @@ f2:
 	# va2[30] is kept at -132(%rbp)
 	# vi3 is kept at -136(%rbp)
 
+	# return ci-1
+	movl $-1, %eax
+
 return_f2:
 	leave
 	ret
@@ -33,6 +39,9 @@ f4:
 	# vi1 is kept at -28(%rbp)
 	# va2[10] is kept at -68(%rbp)
 	# va3[20] is kept at -148(%rbp)
+
+	# return ci5
+	movl $5, %eax
 
 return_f3:
 	leave

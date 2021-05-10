@@ -48,6 +48,7 @@ void compile_function(int parametersCount, int functionIdentifier)
     struct LocalVariable localVariables[5];
     int stackBytesUsed;
     int localVariablesCount;
+    int r, a, b, c;
 
     // reserve space for the parameters for an eventual function call
     stackBytesUsed = 8 * parametersCount;
@@ -79,6 +80,30 @@ void compile_function(int parametersCount, int functionIdentifier)
     }
 
     while(fgets(line, MAX_LINE_SIZE, stdin) != NULL) {
+        // assignment
+
+        // function call
+
+        // array access
+
+        // conditional
+
+        // function return
+        r = sscanf(line, "return vi%d", &a);
+        if (r == 1) {
+
+        }
+        r = scanf(line, "return pi%d", &a);
+        if (r == 1) {
+
+        }
+        r = sscanf(line, "return ci%d", &a);
+        if (r == 1) {
+            printf("\n\t# return ci%d\n", a);
+            printf("\tmovl $%d, %%eax\n", a);
+        }
+
+        // function end
         if (strncmp(line, "end", 3) == 0)
         {
             printf("\n");
