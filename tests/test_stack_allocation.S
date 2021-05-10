@@ -13,6 +13,7 @@ return_f1:
 	leave
 	ret
 
+
 .globl f2
 f2:
 	pushq %rbp
@@ -23,15 +24,16 @@ f2:
 	# va2[30] is kept at -132(%rbp)
 	# vi3 is kept at -136(%rbp)
 
-	# return ci-1
-	movl $-1, %eax
+	# return ci0
+	movl $0, %eax
 
 return_f2:
 	leave
 	ret
 
-.globl f4
-f4:
+
+.globl f3
+f3:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $160, %rsp
@@ -40,10 +42,11 @@ f4:
 	# va2[10] is kept at -68(%rbp)
 	# va3[20] is kept at -148(%rbp)
 
-	# return ci5
-	movl $5, %eax
+	# return ci0
+	movl $0, %eax
 
 return_f3:
 	leave
 	ret
+
 

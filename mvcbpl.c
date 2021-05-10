@@ -109,7 +109,7 @@ void compile_function(int parametersCount, int functionIdentifier)
             printf("\n");
             printf("return_f%d:\n", functionIdentifier);
             printf("\tleave\n");
-            printf("\tret\n");
+            printf("\tret\n\n");
             return;
         }
     }
@@ -130,28 +130,28 @@ int main()
         // no parameters
         if (r == 1)
         {
-            printf(".globl f%d\nf%d:\n", r, r);
+            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
             compile_function(0, functionIdentifier);
             printf("\n");
         }
         // 1 parameter
         if (r == 2)
         {
-            printf(".globl f%d\nf%d:\n", r, r);
+            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
             compile_function(1, functionIdentifier);
             printf("\n");
         }
         // 2 parameters
         else if (r == 3)
         {
-            printf(".globl f%d\nf%d:\n", r, r);
+            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
             compile_function(2, functionIdentifier);
             printf("\n");
         }
         // 3 parameters
         else if (r == 4)
         {
-            printf(".globl f%d\nf%d:\n", r, r);
+            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
             compile_function(3, functionIdentifier);
             printf("\n");
         }
