@@ -8,14 +8,15 @@
 
 #include "local_variables.h"
 
-int process_local_variables(struct LocalVariable * localVariables)
+int process_local_variables(struct LocalVariable *localVariables)
 {
     char line[MAX_LINE_SIZE];
     int r, localVariablesCount, arraySize;
     unsigned int address = 0;
 
     localVariablesCount = 0;
-    while(fgets(line, MAX_LINE_SIZE, stdin) != NULL) {
+    while (fgets(line, MAX_LINE_SIZE, stdin) != NULL)
+    {
         r = sscanf(line, "var vi%d", &localVariablesCount);
         if (r == 1)
         {
@@ -57,7 +58,7 @@ void compile_function(int parametersCount, int functionIdentifier)
     localVariablesCount = process_local_variables(localVariables);
     for (int i = 0; i < localVariablesCount; i++)
         localVariables[i].vAddr += stackBytesUsed;
-    
+
     // update the total memory needed from the stack
     // and make sure it's aligned
     stackBytesUsed = localVariables[localVariablesCount - 1].vAddr;
@@ -79,7 +80,8 @@ void compile_function(int parametersCount, int functionIdentifier)
             printf("\t# va%d[%d] is kept at -%u(%%rbp)\n", localVariables[i].vIdentifier, localVariables[i].vType.size, address);
     }
 
-    while(fgets(line, MAX_LINE_SIZE, stdin) != NULL) {
+    while (fgets(line, MAX_LINE_SIZE, stdin) != NULL)
+    {
         // assignment
 
         // function call
@@ -90,13 +92,15 @@ void compile_function(int parametersCount, int functionIdentifier)
 
         // function return ----------------------------------------------------
         r = sscanf(line, "return vi%d", &a);
-        if (r == 1) {
-            unsigned int address = localVariables[a-1].vAddr;
+        if (r == 1)
+        {
+            unsigned int address = localVariables[a - 1].vAddr;
             printf("\n\t# return vi%d\n", a);
             printf("\tmovl -%u(%%rbp), %%eax\n", address);
         }
         r = sscanf(line, "return pi%d", &a);
-        if (r == 1) {
+        if (r == 1)
+        {
             printf("\n\t# return pi%d\n", a);
             if (a == 1)
             {
@@ -110,10 +114,10 @@ void compile_function(int parametersCount, int functionIdentifier)
             {
                 printf("\tmovl %%edx, %%eax\n");
             }
-
         }
         r = sscanf(line, "return ci%d", &a);
-        if (r == 1) {
+        if (r == 1)
+        {
             printf("\n\t# return ci%d\n", a);
             printf("\tmovl $%d, %%eax\n", a);
         }
@@ -139,7 +143,8 @@ int main()
 
     printf(".text\n\n");
 
-    while(fgets(line, MAX_LINE_SIZE, stdin) != NULL) {
+    while (fgets(line, MAX_LINE_SIZE, stdin) != NULL)
+    {
         r = sscanf(line, "function f%d p%c1, p%c2, p%c3", &functionIdentifier, &p1, &p2, &p3);
 
         // no parameters
