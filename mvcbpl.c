@@ -8,21 +8,280 @@
 
 #define MAX_LINE_SIZE 256
 
+void process_1st_parameter(struct LocalVariable *localVariables,
+    char c1, char c2, char d)
+{
+    if (c1 == 'c')
+    {
+        printf("\tmovl $%d, %%edi  # 1o parameter\n", d);
+    }
+    else if (c1 == 'p')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%d(%%rbp), %%edi  # 1o parameter\n", d * 8);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovq -%d(%%rbp), %%rdi  # 1o parameter\n", d * 8);
+        }
+    }
+    else // if (c1 == 'v')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%u(rbp), %%edi  # 1o parameter\n", localVariables[d-1].vAddr);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovl -%u(rbp), %%rdi  # 1o parameter\n", localVariables[d-1].vAddr);
+        }
+    }
+}
+
+void process_2nd_parameter(struct LocalVariable *localVariables,
+    char c1, char c2, char d)
+{
+    if (c1 == 'c')
+    {
+        printf("\tmovl $%d, %%esi  # 2o parameter\n", d);
+    }
+    else if (c1 == 'p')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%d(%%rbp), %%esi  # 2o parameter\n", d * 8);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovq -%d(%%rbp), %%rsi  # 2o parameter\n", d * 8);
+        }
+    }
+    else // if (c1 == 'v')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%u(rbp), %%esi  # 2o parameter\n", localVariables[d-1].vAddr);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovl -%u(rbp), %%rsi  # 2o parameter\n", localVariables[d-1].vAddr);
+        }
+    }
+}
+
+void process_3rd_parameter(struct LocalVariable *localVariables,
+    char c1, char c2, char d)
+{
+    if (c1 == 'c')
+    {
+        printf("\tmovl $%d, %%edx  # 3o parameter\n", d);
+    }
+    else if (c1 == 'p')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%d(%%rbp), %%edx  # 3o parameter\n", d * 8);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovq -%d(%%rbp), %%rdx  # 3o parameter\n", d * 8);
+        }
+    }
+    else // if (c1 == 'v')
+    {
+        if (c2 == 'i')
+        {
+            printf("\tmovl -%u(rbp), %%edx  # 3o parameter\n", localVariables[d-1].vAddr);
+        }
+        else // if (c2 == 'a')
+        {
+            printf("\tmovl -%u(rbp), %%rdx  # 3o parameter\n", localVariables[d-1].vAddr);
+        }
+    }
+}
+
+void show_parameters_locations(int parametersCount)
+{
+    switch (parametersCount)
+    {
+    case 1:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        break;
+    case 2:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
+        break;
+    case 3:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
+        printf("\t# if needed %%rdx is saved at -24(%%rbp) before function call\n");
+        break;
+    }
+}
+
+void show_local_variables_location(int localVariablesCount, struct LocalVariable *localVariables)
+{
+    for (int i = 0; i < localVariablesCount; i++)
+    {
+        unsigned int address = localVariables[i].vAddr;
+        if (localVariables[i].vType.baseType == vInteger)
+            printf("\t# vi%d is kept at -%u(%%rbp)\n", localVariables[i].vIdentifier, address);
+        else //if (localVariables[i].vType.baseType == vArray)
+            printf("\t# va%d[%d] is kept at -%u(%%rbp)\n", localVariables[i].vIdentifier, localVariables[i].vType.size, address);
+    }
+}
+
+void compile_assignment_command(char *line, struct LocalVariable *localVariables, int parametersCount)
+{
+    // TODO: [x]simple assignment, [ ]expression or [x]function return
+    int r, a, b, d1, d2, d3;
+    char c11, c12, c21, c22, c31, c32;
+
+    printf("\n\t# %s", line);
+
+    // simple assignment
+    r = sscanf(line, "vi%d = ci%d", &a, &b);
+    if (r == 2)
+    {
+        printf("\tmovl $%d, -%u(%%rbp)\n", b, localVariables[a-1].vAddr);
+        return;
+    }
+    r = sscanf(line, "vi%d = vi%d", &a, &b);
+    if (r == 2)
+    {
+        printf("\tmovl -%u(%%rbp), %%eax\n", localVariables[b-1].vAddr);
+        printf("\tmovl %%eax, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+        return;
+    }
+    r = sscanf(line, "vi%d = pi%d", &a, &b);
+    if (r == 2)
+    {
+        if (b == 1)
+        {
+            printf("\tmovl %%edi, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+        }
+        else if (b == 2)
+        {
+            printf("\tmovl %%esi, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+        }
+        else // if (b == 3)
+        {
+            printf("\tmovl %%edx, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+        }
+        return;
+    }
+
+    // function return assignment
+    r = sscanf(line, "vi%d = call f%d %c%c%d %c%c%d %c%c%d", &a, &b,
+        &c11, &c12, &d1, &c21, &c22, &d2, &c31, &c32, &d3);
+    if (r == 2)
+    {
+        printf("\tcall f%d\n", b);
+        printf("\tmovl %%eax, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+        return;
+    }
+    else if (r == 5)
+    {
+        if (parametersCount > 0)  // save %rdi in the stack
+        {
+            printf("\tmovq %%rdi, -8(%%rbp)\n");
+        }
+
+        process_1st_parameter(localVariables, c11, c12, d1);
+
+        printf("\tcall f%d\n", b);
+        printf("\tmovl %%eax, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+
+        if (parametersCount > 0)  // get %rdi back from the the stack
+        {
+            printf("\tmovq -8(%%rbp), %%rdi\n");
+        }
+        return;
+    }
+    else if (r == 8)
+    {
+        if (parametersCount > 0)  // save %rdi in the stack
+        {
+            printf("\tmovq %%rdi, -8(%%rbp)\n");
+        }
+        if (parametersCount > 1)  // save %rsi in the stack
+        {
+            printf("\tmovq %%rsi, -16(%%rbp)\n");
+        }
+
+        process_1st_parameter(localVariables, c11, c12, d1);
+        process_2nd_parameter(localVariables, c21, c22, d2);
+
+        printf("\tcall f%d\n", b);
+        printf("\tmovl %%eax, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+
+        if (parametersCount > 0)  // get %rdi back from the the stack
+        {
+            printf("\tmovq -8(%%rbp), %%rdi\n");
+        }
+        if (parametersCount > 1)  // get %rsi back from the the stack
+        {
+            printf("\tmovq -16(%%rbp), %%rsi\n");
+        }
+        return;
+    }
+    else // if (r == 11)
+    {
+        if (parametersCount > 0)  // save %rdi in the stack
+        {
+            printf("\tmovq %%rdi, -8(%%rbp)\n");
+        }
+        if (parametersCount > 1)  // save %rsi in the stack
+        {
+            printf("\tmovq %%rsi, -16(%%rbp)\n");
+        }
+        if (parametersCount > 2)  // save %rdx in the stack
+        {
+            printf("\tmovq %%rdx, -24(%%rbp)\n");
+        }
+
+        process_1st_parameter(localVariables, c11, c12, d1);
+        process_2nd_parameter(localVariables, c21, c22, d2);
+        process_3rd_parameter(localVariables, c32, c32, d3);
+
+        printf("\tcall f%d\n", b);
+        printf("\tmovl %%eax, -%u(%%rbp)\n", localVariables[a-1].vAddr);
+
+        if (parametersCount > 0)  // get %rdi back from the the stack
+        {
+            printf("\tmovq -8(%%rbp), %%rdi\n");
+        }
+        if (parametersCount > 1)  // get %rsi back from the the stack
+        {
+            printf("\tmovq -16(%%rbp), %%rsi\n");
+        }
+        if (parametersCount > 2)  // get %rdx back from the the stack
+        {
+            printf("\tmovq -24(%%rbp), %%rdx\n");
+        }
+        return;
+    }
+
+    // expression assignment
+}
+
 void compile_return_command(char *line, struct LocalVariable *localVariables)
 {
     int r, a;
+
+    printf("\n\t# %s", line);
 
     r = sscanf(line, "return vi%d", &a);
     if (r == 1)
     {
         unsigned int address = localVariables[a - 1].vAddr;
-        printf("\n\t# return vi%d\n", a);
         printf("\tmovl -%u(%%rbp), %%eax\n", address);
+        return;
     }
     r = sscanf(line, "return pi%d", &a);
     if (r == 1)
     {
-        printf("\n\t# return pi%d\n", a);
         if (a == 1)
         {
             printf("\tmovl %%edi, %%eax\n");
@@ -35,12 +294,13 @@ void compile_return_command(char *line, struct LocalVariable *localVariables)
         {
             printf("\tmovl %%edx, %%eax\n");
         }
+        return;
     }
     r = sscanf(line, "return ci%d", &a);
     if (r == 1)
     {
-        printf("\n\t# return ci%d\n", a);
         printf("\tmovl $%d, %%eax\n", a);
+        return;
     }
 }
 
@@ -85,7 +345,7 @@ void compile_function(int parametersCount, int functionIdentifier)
     struct LocalVariable localVariables[5];
     int stackBytesUsed;
     int localVariablesCount;
-    int r, a, b, c;
+    int r, a;
 
     // reserve space for the parameters for an eventual function call
     stackBytesUsed = 8 * parametersCount;
@@ -108,35 +368,18 @@ void compile_function(int parametersCount, int functionIdentifier)
         printf("\tsubq $%d, %%rsp\n", stackBytesUsed);
     printf("\n");
 
-    switch (parametersCount)
-    {
-    case 1:
-        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
-        break;
-    case 2:
-        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
-        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
-        break;
-    case 3:
-        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
-        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
-        printf("\t# if needed %%rdx is saved at -24(%%rbp) before function call\n");
-        break;
-    }
-    for (int i = 0; i < localVariablesCount; i++)
-    {
-        unsigned int address = localVariables[i].vAddr;
-        if (localVariables[i].vType.baseType == vInteger)
-            printf("\t# vi%d is kept at -%u(%%rbp)\n", localVariables[i].vIdentifier, address);
-        else //if (localVariables[i].vType.baseType == vArray)
-            printf("\t# va%d[%d] is kept at -%u(%%rbp)\n", localVariables[i].vIdentifier, localVariables[i].vType.size, address);
-    }
+    // Show the position where local variables and (possibly)
+    // parameters are saved in the stack
+    show_parameters_locations(parametersCount);
+    show_local_variables_location(localVariablesCount, localVariables);
 
     while (fgets(line, MAX_LINE_SIZE, stdin) != NULL)
     {
         // assignment
-
-        // function call
+        r = sscanf(line, "vi%d", &a);
+        if (r == 1) {
+            compile_assignment_command(line, localVariables, parametersCount);
+        }
 
         // array access
 
