@@ -20,6 +20,7 @@ f2:
 	movq %rsp, %rbp
 	subq $144, %rsp
 
+	# if needed %rdi is saved at -8(%rbp) before function call
 	# vi1 is kept at -12(%rbp)
 	# va2[30] is kept at -132(%rbp)
 	# vi3 is kept at -136(%rbp)
@@ -38,6 +39,9 @@ f3:
 	movq %rsp, %rbp
 	subq $160, %rsp
 
+	# if needed %rdi is saved at -8(%rbp) before function call
+	# if needed %rsi is saved at -16(%rbp) before function call
+	# if needed %rdx is saved at -24(%rbp) before function call
 	# vi1 is kept at -28(%rbp)
 	# va2[10] is kept at -68(%rbp)
 	# va3[20] is kept at -148(%rbp)

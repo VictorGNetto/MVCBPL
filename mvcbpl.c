@@ -4,9 +4,45 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "local_variables.h"
+
 #define MAX_LINE_SIZE 256
 
-#include "local_variables.h"
+void compile_return_command(char *line, struct LocalVariable *localVariables)
+{
+    int r, a;
+
+    r = sscanf(line, "return vi%d", &a);
+    if (r == 1)
+    {
+        unsigned int address = localVariables[a - 1].vAddr;
+        printf("\n\t# return vi%d\n", a);
+        printf("\tmovl -%u(%%rbp), %%eax\n", address);
+    }
+    r = sscanf(line, "return pi%d", &a);
+    if (r == 1)
+    {
+        printf("\n\t# return pi%d\n", a);
+        if (a == 1)
+        {
+            printf("\tmovl %%edi, %%eax\n");
+        }
+        else if (a == 2)
+        {
+            printf("\tmovl %%esi, %%eax\n");
+        }
+        else // if (a == 3)
+        {
+            printf("\tmovl %%edx, %%eax\n");
+        }
+    }
+    r = sscanf(line, "return ci%d", &a);
+    if (r == 1)
+    {
+        printf("\n\t# return ci%d\n", a);
+        printf("\tmovl $%d, %%eax\n", a);
+    }
+}
 
 int process_local_variables(struct LocalVariable *localVariables)
 {
@@ -61,7 +97,8 @@ void compile_function(int parametersCount, int functionIdentifier)
 
     // update the total memory needed from the stack
     // and make sure it's aligned
-    stackBytesUsed = localVariables[localVariablesCount - 1].vAddr;
+    if (localVariablesCount > 0)
+        stackBytesUsed = localVariables[localVariablesCount - 1].vAddr;
     if (stackBytesUsed % 16 != 0)
         stackBytesUsed += 16 - stackBytesUsed % 16;
 
@@ -71,6 +108,21 @@ void compile_function(int parametersCount, int functionIdentifier)
         printf("\tsubq $%d, %%rsp\n", stackBytesUsed);
     printf("\n");
 
+    switch (parametersCount)
+    {
+    case 1:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        break;
+    case 2:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
+        break;
+    case 3:
+        printf("\t# if needed %%rdi is saved at -8(%%rbp) before function call\n");
+        printf("\t# if needed %%rsi is saved at -16(%%rbp) before function call\n");
+        printf("\t# if needed %%rdx is saved at -24(%%rbp) before function call\n");
+        break;
+    }
     for (int i = 0; i < localVariablesCount; i++)
     {
         unsigned int address = localVariables[i].vAddr;
@@ -91,35 +143,9 @@ void compile_function(int parametersCount, int functionIdentifier)
         // conditional
 
         // function return ----------------------------------------------------
-        r = sscanf(line, "return vi%d", &a);
-        if (r == 1)
+        if (strncmp(line, "return", 6) == 0)
         {
-            unsigned int address = localVariables[a - 1].vAddr;
-            printf("\n\t# return vi%d\n", a);
-            printf("\tmovl -%u(%%rbp), %%eax\n", address);
-        }
-        r = sscanf(line, "return pi%d", &a);
-        if (r == 1)
-        {
-            printf("\n\t# return pi%d\n", a);
-            if (a == 1)
-            {
-                printf("\tmovl %%edi, %%eax\n");
-            }
-            else if (a == 2)
-            {
-                printf("\tmovl %%esi, %%eax\n");
-            }
-            else // if (a == 3)
-            {
-                printf("\tmovl %%edx, %%eax\n");
-            }
-        }
-        r = sscanf(line, "return ci%d", &a);
-        if (r == 1)
-        {
-            printf("\n\t# return ci%d\n", a);
-            printf("\tmovl $%d, %%eax\n", a);
+            compile_return_command(line, localVariables);
         }
 
         // function end
@@ -147,32 +173,9 @@ int main()
     {
         r = sscanf(line, "function f%d p%c1, p%c2, p%c3", &functionIdentifier, &p1, &p2, &p3);
 
-        // no parameters
-        if (r == 1)
-        {
+        if (r > 0) {
             printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
-            compile_function(0, functionIdentifier);
-            printf("\n");
-        }
-        // 1 parameter
-        if (r == 2)
-        {
-            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
-            compile_function(1, functionIdentifier);
-            printf("\n");
-        }
-        // 2 parameters
-        else if (r == 3)
-        {
-            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
-            compile_function(2, functionIdentifier);
-            printf("\n");
-        }
-        // 3 parameters
-        else if (r == 4)
-        {
-            printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
-            compile_function(3, functionIdentifier);
+            compile_function(r - 1, functionIdentifier);
             printf("\n");
         }
     }
