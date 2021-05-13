@@ -8,6 +8,20 @@
 
 #define MAX_LINE_SIZE 256
 
+// return address (relative to the %rbp register) of a integer
+// variable or parameter
+unsigned int int_stack_addr(struct LocalVariable *localVariables, char c1, int d)
+{
+    if (c1 == 'p')
+    {
+        return d * 8;
+    }
+    else // if (c1 == 'v')
+    {
+        return localVariables[d-1].vAddr;
+    }
+}
+
 void process_1st_parameter(struct LocalVariable *localVariables,
     char c1, char c2, char d)
 {
@@ -15,27 +29,15 @@ void process_1st_parameter(struct LocalVariable *localVariables,
     {
         printf("\tmovl $%d, %%edi  # 1o parameter\n", d);
     }
-    else if (c1 == 'p')
+    else if (c2 == 'i')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%d(%%rbp), %%edi  # 1o parameter\n", d * 8);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovq -%d(%%rbp), %%rdi  # 1o parameter\n", d * 8);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovl -%d(%%rbp), %%edi  # 1o parameter\n", address);
     }
-    else // if (c1 == 'v')
+    else // if (c2 == 'a')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%u(rbp), %%edi  # 1o parameter\n", localVariables[d-1].vAddr);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovl -%u(rbp), %%rdi  # 1o parameter\n", localVariables[d-1].vAddr);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovq -%d(%%rbp), %%rdi  # 1o parameter\n", address);
     }
 }
 
@@ -46,27 +48,15 @@ void process_2nd_parameter(struct LocalVariable *localVariables,
     {
         printf("\tmovl $%d, %%esi  # 2o parameter\n", d);
     }
-    else if (c1 == 'p')
+    else if (c2 == 'i')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%d(%%rbp), %%esi  # 2o parameter\n", d * 8);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovq -%d(%%rbp), %%rsi  # 2o parameter\n", d * 8);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovl -%d(%%rbp), %%esi  # 2o parameter\n", address);
     }
-    else // if (c1 == 'v')
+    else // if (c2 == 'a')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%u(rbp), %%esi  # 2o parameter\n", localVariables[d-1].vAddr);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovl -%u(rbp), %%rsi  # 2o parameter\n", localVariables[d-1].vAddr);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovq -%d(%%rbp), %%rsi  # 2o parameter\n", address);
     }
 }
 
@@ -77,27 +67,15 @@ void process_3rd_parameter(struct LocalVariable *localVariables,
     {
         printf("\tmovl $%d, %%edx  # 3o parameter\n", d);
     }
-    else if (c1 == 'p')
+    else if (c2 == 'i')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%d(%%rbp), %%edx  # 3o parameter\n", d * 8);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovq -%d(%%rbp), %%rdx  # 3o parameter\n", d * 8);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovl -%d(%%rbp), %%edx  # 3o parameter\n", address);
     }
-    else // if (c1 == 'v')
+    else // if (c2 == 'a')
     {
-        if (c2 == 'i')
-        {
-            printf("\tmovl -%u(rbp), %%edx  # 3o parameter\n", localVariables[d-1].vAddr);
-        }
-        else // if (c2 == 'a')
-        {
-            printf("\tmovl -%u(rbp), %%rdx  # 3o parameter\n", localVariables[d-1].vAddr);
-        }
+        int address = int_stack_addr(localVariables, c1, d);
+        printf("\tmovq -%d(%%rbp), %%rdx  # 3o parameter\n", address);
     }
 }
 

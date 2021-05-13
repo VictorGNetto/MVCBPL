@@ -94,7 +94,7 @@ f2:
 	# vi1 is kept at -4(%rbp)
 
 	# vi1 = call f101 vi1
-	movl -4(rbp), %edi  # 1o parameter
+	movl -4(%rbp), %edi  # 1o parameter
 	call f101
 	movl %eax, -4(%rbp)
 
@@ -147,7 +147,7 @@ f4:
 	movq %rsi, -16(%rbp)
 	movq -8(%rbp), %rdi  # 1o parameter
 	movl -16(%rbp), %esi  # 2o parameter
-	movl -40(rbp), %rdx  # 3o parameter
+	movq -40(%rbp), %rdx  # 3o parameter
 	call f103
 	movl %eax, -20(%rbp)
 	movq -8(%rbp), %rdi
