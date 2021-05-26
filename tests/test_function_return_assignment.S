@@ -117,7 +117,7 @@ f3:
 
 	# vi1 = call f102 pa1 ci-5
 	movq %rdi, -8(%rbp)
-	movq -8(%rbp), %rdi  # 1o parameter
+	leaq -8(%rbp), %rdi  # 1o parameter
 	movl $-5, %esi  # 2o parameter
 	call f102
 	movl %eax, -12(%rbp)
@@ -145,9 +145,9 @@ f4:
 	# vi1 = call f103 pa1 pi2 va2
 	movq %rdi, -8(%rbp)
 	movq %rsi, -16(%rbp)
-	movq -8(%rbp), %rdi  # 1o parameter
+	leaq -8(%rbp), %rdi  # 1o parameter
 	movl -16(%rbp), %esi  # 2o parameter
-	movq -40(%rbp), %rdx  # 3o parameter
+	leaq -40(%rbp), %rdx  # 3o parameter
 	call f103
 	movl %eax, -20(%rbp)
 	movq -8(%rbp), %rdi

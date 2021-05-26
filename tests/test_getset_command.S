@@ -16,20 +16,23 @@ f1:
 	movl $1, %ecx
 	addl %ecx, %eax
 	movl %eax, -20(%rbp)
-	# set va2 index ci5 with ci2
-	movq -60(%rbp), %r9
+
+	# set va2 index ci5 with ci2 
+	leaq -60(%rbp), %r9
 	movq $5, %r8
 	imulq $4, %r8
 	addq %r8, %r9
 	movl %esi, (%r9)
-	# set pa2 index ci3 with vi1
-	movq %rsi, %r9
+
+	# set pa2 index ci3 with vi1 
+	leaq %rsi, %r9
 	movq $3, %r8
 	imulq $4, %r8
 	addq %r8, %r9
 	movl -20(%rbp), (%r9)
+
 	# get va2 index ci5 to vi1
-	movq -60(%rbp), %r9
+	leaq -60(%rbp), %r9
 	movq $5, %r8
 	imulq $4, %r8
 	addq %r8, %r9
