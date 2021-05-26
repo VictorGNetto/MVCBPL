@@ -400,6 +400,169 @@ int process_local_variables(struct LocalVariable *localVariables)
     }
 }
 
+void compile_get_command(char *line, struct LocalVariable *localVariables)
+{
+    int r, a, b, d1;
+    char c11, c12;
+    r = sscanf(line, "get %ca%d index ci%d to %ci%d", &c11, &a, &b, &c12, &d1);
+    printf("\t# get %ca%d index ci%d to %ci%d\n", c11, a, b, c12, d1);
+    if (r == 5)
+    {
+        if (c11 == 'v')
+        {
+            printf("\tmovq -%u(%%rbp), %%r9\n", localVariables[a - 1].vAddr);
+            printf("\tmovq $%d, %%r8\n", b);
+            printf("\timulq $4, %%r8\n");
+            printf("\taddq %%r8, %%r9\n");
+            if (c12 == 'v')
+            {
+                printf("\tmovl (%%r9), -%u(%%rbp)\n", localVariables[d1 - 1].vAddr);
+            }
+            else
+            {
+                switch (d1)
+                {
+                case 1:
+                    printf("\tmovl (%%r9), %%edi\n");
+                    break;
+                case 2:
+                    printf("\tmovl (%%r9), %%esi\n");
+                    break;
+                case 3:
+                    printf("\tmovl (%%r9), %%edx\n");
+                    break;
+                }
+            }
+        }
+        else
+        {
+            switch (a)
+            {
+            case 1:
+                printf("\tmovq %%rdi, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            case 2:
+                printf("\tmovq %%rsi, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            case 3:
+                printf("\tmovq %%rdx, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            }
+
+            if (c12 == 'v')
+            {
+                printf("\tmovl (%%r9), -%u(%%rbp)\n", localVariables[d1 - 1].vAddr);
+            }
+            else
+            {
+                switch (d1)
+                {
+                case 1:
+                    printf("\tmovl (%%r9), %%edi\n");
+                    break;
+                case 2:
+                    printf("\tmovl (%%r9), %%esi\n");
+                    break;
+                case 3:
+                    printf("\tmovl (%%r9), %%edx\n");
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void compile_set_command(char *line, struct LocalVariable *localVariables)
+{
+    int r, a, b, d1;
+    char c11, c12;
+    r = sscanf(line, "set %ca%d index ci%d with %ci%d", &c11, &a, &b, &c12, &d1);
+    printf("\t# set %ca%d index ci%d with %ci%d\n", c11, a, b, c12, d1);
+
+    if (r == 5)
+    {
+        if (c11 == 'v')
+        {
+            printf("\tmovq -%u(%%rbp), %%r9\n", localVariables[a - 1].vAddr);
+            printf("\tmovq $%d, %%r8\n", b);
+            printf("\timulq $4, %%r8\n");
+            printf("\taddq %%r8, %%r9\n");
+            if (c12 == 'v')
+            {
+                printf("\tmovl -%u(%%rbp), (%%r9d)\n", localVariables[d1 - 1].vAddr);
+            }
+            else
+            {
+                switch (d1)
+                {
+                case 1:
+                    printf("\tmovl %%edi, (%%r9)\n");
+                    break;
+                case 2:
+                    printf("\tmovl %%esi, (%%r9)\n");
+                    break;
+                case 3:
+                    printf("\tmovl %%edx, (%%r9)\n");
+                    break;
+                }
+            }
+        }
+        else
+        {
+            switch (a)
+            {
+            case 1:
+                printf("\tmovq %%rdi, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            case 2:
+                printf("\tmovq %%rsi, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            case 3:
+                printf("\tmovq %%rdx, %%r9\n");
+                printf("\tmovq $%d, %%r8\n", b);
+                printf("\timulq $4, %%r8\n");
+                printf("\taddq %%r8, %%r9\n");
+                break;
+            }
+
+            if (c12 == 'v')
+            {
+                printf("\tmovl -%u(%%rbp), (%%r9)\n", localVariables[d1 - 1].vAddr);
+            }
+            else
+            {
+                switch (d1)
+                {
+                case 1:
+                    printf("\tmovl %%edi, (%%r9)\n");
+                    break;
+                case 2:
+                    printf("\tmovl %%esi, (%%r9)\n");
+                    break;
+                case 3:
+                    printf("\tmovl %%edx, (%%r9)\n");
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void compile_function(int parametersCount, int functionIdentifier)
 {
     char line[MAX_LINE_SIZE];
@@ -444,6 +607,15 @@ void compile_function(int parametersCount, int functionIdentifier)
         }
 
         // array access
+        if (strncmp(line, "get", 3) == 0)
+        {
+            compile_get_command(line, localVariables);
+        }
+
+        if (strncmp(line, "set", 3) == 0)
+        {
+            compile_set_command(line, localVariables);
+        }
 
         // conditional
 
