@@ -13,11 +13,14 @@ void compile_get_command(char *line, struct LocalVariable *localVariables);
 void compile_set_command(char *line, struct LocalVariable *localVariables);
 void compile_assignment_command(char *line, struct LocalVariable *localVariables, int parametersCount);
 void compile_return_command(char *line, struct LocalVariable *localVariables);
+void begin_conditional(char *line, struct LocalVariable *localVariables);
+void end_conditional(void);
 
 void compile_function(int parametersCount, int functionIdentifier)
 {
     char line[MAX_LINE_SIZE];
     struct LocalVariable localVariables[5];
+    int isInsideConditional = 0;
 
     printf(".globl f%d\nf%d:\n", functionIdentifier, functionIdentifier);
 
@@ -42,16 +45,29 @@ void compile_function(int parametersCount, int functionIdentifier)
             compile_set_command(line, localVariables);
         }
 
-        // conditional
-
         // function return
         if (strncmp(line, "return", 6) == 0)
         {
             compile_return_command(line, localVariables);
+            if (isInsideConditional)
+                printf("\tjmp return_f%d\n", functionIdentifier);
+        }
+
+        // conditional
+        if (strncmp(line, "if", 2) == 0)
+        {
+            begin_conditional(line, localVariables);
+            isInsideConditional = 1;
+        }
+
+        if (strncmp(line, "endif", 5) == 0)
+        {
+            end_conditional();
+            isInsideConditional = 0;
         }
 
         // function end
-        if (strncmp(line, "end", 3) == 0)
+        if (strncmp(line, "end", 3) == 0 && strncmp(line, "endif", 5) != 0)
         {
             printf("\n");
             printf("return_f%d:\n", functionIdentifier);
