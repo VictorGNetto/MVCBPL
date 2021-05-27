@@ -129,11 +129,11 @@ static int expression_assignment(char *line, struct LocalVariable *localVariable
             break;
         case '/':
             if (parametersCount == 3)
-                printf("\tmovl %%edx, %%r8d\n");
+                printf("\tmovq %%rdx, %%r8\n");
             printf("\tcltd\n");
-                printf("\tidivl %%ecx\n");
+            printf("\tidivl %%ecx\n");
             if (parametersCount == 3)
-                printf("\tmovl %%r8d, %%edx\n");
+                printf("\tmovq %%r8, %%rdx\n");
             break;
         }
 

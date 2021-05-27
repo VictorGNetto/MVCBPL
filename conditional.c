@@ -9,7 +9,7 @@ void begin_conditional(char *line, struct LocalVariable *localVariables)
     char c;
 
     printf("\n\t# %s", line);
-    printf("# begin_if%d\n", conditionalCount);
+    printf("# begin_if%d:\n", conditionalCount);
 
     sscanf(line, "if %ci%d", &c, &a);
     if (c == 'c')

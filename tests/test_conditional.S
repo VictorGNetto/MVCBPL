@@ -12,7 +12,7 @@ f1:
 	movl $123, -4(%rbp)
 
 	# if vi1
-# begin_if0
+# begin_if0:
 	movl -4(%rbp), %eax
 	cmpl $0, %eax
 	je end_if0
@@ -40,7 +40,7 @@ f2:
 	# vi2 is kept at -52(%rbp)
 
 	# if ci-1
-# begin_if1
+# begin_if1:
 	movl $-1, %eax
 	cmpl $0, %eax
 	je end_if1
@@ -60,7 +60,7 @@ end_if1:
 	movl (%r9), -52(%rbp)
 
 	# if pi1
-# begin_if2
+# begin_if2:
 	movl %edi, %eax
 	cmpl $0, %eax
 	je end_if2
